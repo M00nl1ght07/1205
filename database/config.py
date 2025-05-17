@@ -1,0 +1,5 @@
+HOST='95.31.128.97'
+USER='casaos'
+PASSWORD='casaos'
+DBNAME='1205'
+PORT=5432
