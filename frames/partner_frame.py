@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import * 
 from PySide6.QtGui import *
+from .add_partner_info import *
+from .update_partner_info import *
 
 class PartnerFrame(QWidget):
     def __init__(self, controller):
@@ -67,11 +69,21 @@ class PartnerFrame(QWidget):
             card_layout.addWidget(title_director)
             card_layout.addWidget(title_phone_number)
             card_layout.addWidget(title_rate)
+
+            edit_btn = QPushButton("Редактировать")
+            edit_btn.setObjectName(partner["name_of_partner"])
+            edit_btn.clicked.connect(self.open_edit_frame)
+            card_layout.addWidget(edit_btn)
             
             cards_layout.addWidget(card)
 
         scroll.setWidget(cards)
         self.layout.addWidget(scroll)
+        
+        # Добавляем кнопку создания нового партнера
+        create_btn = QPushButton("Создать партнера")
+        create_btn.clicked.connect(self.open_add_frame)
+        self.layout.addWidget(create_btn)
     
 
     def discount_calculate(self, partner):
@@ -88,3 +100,18 @@ class PartnerFrame(QWidget):
         
         else:
             return 0
+    
+    def open_edit_frame(self):
+        '''
+        Функция открытия фрейма по обработчику на кнопку
+        :return: None
+        '''
+        partner_name = self.sender().objectName()
+        self.controller.switch_frame(UpdatePartnerInfo, partner_name)
+    
+    def open_add_frame(self):
+        '''
+        Функция открытия фрейма добавления партнера
+        :return: None
+        '''
+        self.controller.switch_frame(AddPartnerInfo)

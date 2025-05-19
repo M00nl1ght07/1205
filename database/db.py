@@ -1,4 +1,5 @@
 from database.create_table import connect_to_db
+from database.check_input_data import start_check
 
 class Database():
     def __init__(self):
@@ -45,3 +46,80 @@ class Database():
             print(err)
             return 0
 
+
+    def take_partner_info(self, partner_name: str):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(f'''
+                SELECT * FROM partners_import
+                WHERE name_of_partner = '{partner_name}'
+            ''')
+            data = cursor.fetchone()
+            if data:
+                return {
+                    'type_of_partner': data[0],
+                    'name_of_partner': data[1],
+                    'name_of_director': data[2],
+                    'email_of_partner': data[3],
+                    'phone_of_partner': data[4],
+                    'addr_of_partner': data[5],
+                    'inn': data[6],
+                    'rate': data[7]
+                }
+            return {}
+        except Exception as error:
+            print(f'Ошибка: {error}')
+            return {}
+
+    def update_partner_info(self, partner_name: str, partner_info: dict):
+        try:
+            if not start_check(partner_info):
+                return False
+                
+            cursor = self.connection.cursor()
+            cursor.execute(f'''
+                UPDATE partners_import SET
+                name_of_partner = '{partner_info["name_of_partner"]}',
+                name_of_director = '{partner_info["name_of_director"]}',
+                email_of_partner = '{partner_info["email_of_partner"]}',
+                phone_of_partner = '{partner_info["phone_of_partner"]}',
+                addr_of_partner = '{partner_info["addr_of_partner"]}',
+                inn = '{partner_info["inn"]}',
+                rate = '{partner_info["rate"]}'
+                WHERE name_of_partner = '{partner_name}'
+            ''')
+            self.connection.commit()
+            cursor.close()
+            return True
+        except Exception as error:
+            print(f'Ошибка: {error}')
+            return False
+
+    def add_partner_info(self, partner_info: dict):
+        try:
+            if not start_check(partner_info):
+                return False
+                
+            cursor = self.connection.cursor()
+            cursor.execute('''
+                INSERT INTO partners_import (
+                    type_of_partner, name_of_partner, name_of_director,
+                    email_of_partner, phone_of_partner, addr_of_partner,
+                    inn, rate
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (
+                partner_info["type_of_partner"],
+                partner_info["name_of_partner"],
+                partner_info["name_of_director"],
+                partner_info["email_of_partner"],
+                partner_info["phone_of_partner"],
+                partner_info["addr_of_partner"],
+                partner_info["inn"],
+                partner_info["rate"]
+            ))
+            self.connection.commit()
+            cursor.close()
+            return True
+        except Exception as error:
+            print(f'Ошибка: {error}')
+            return False

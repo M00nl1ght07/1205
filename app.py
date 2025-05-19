@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import *
 from PySide6.QtGui import QPixmap
-from frames import donestart
+from frames import partner_frame
+from partner_static_name import PartnerStaticName
 from database import db
 import sys
 
@@ -14,12 +15,20 @@ class MainApplication(QWidget):
         self.setWindowTitle("Мастер Пол")
         self.setWindowIcon(QPixmap("res/icon.png"))
 
-        frames_container = QStackedWidget()
-        frame_start = donestart.PartnerFrame(self)
-        frames_container.addWidget(frame_start)
+        self.frames_container = QStackedWidget()
+        frame_start = partner_frame.PartnerFrame(self)
+        self.frames_container.addWidget(frame_start)
 
         self.layout = QVBoxLayout(self)
-        self.layout.addWidget(frames_container)
+        self.layout.addWidget(self.frames_container)
+
+    def switch_frame(self, frame_new, partner_name = None):
+        if partner_name != None:
+            PartnerStaticName.set_partner_name(partner_name)
+
+        new_frame = frame_new(controller = self)
+        self.frames_container.addWidget(new_frame)
+        self.frames_container.setCurrentWidget(new_frame)
 
 style = '''
     #title_main {
@@ -49,6 +58,10 @@ style = '''
     #subtitle {
         font-size: 18px;
         margin-left: 20px;
+    }
+    
+    QPushButton{
+        background: #67BA80;
     }
 '''
 
